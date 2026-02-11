@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import User from "../assets/UserProfile/user.png";
 import Banner from "../assets/UserProfile/image.jpg";
 
 const UserProfile = () => {
+  const navigate = useNavigate();
+
   const [activeTab, setActiveTab] = useState("Personal Information");
   const [profileImage, setProfileImage] = useState(User);
 
@@ -15,6 +18,14 @@ const UserProfile = () => {
     "Terms and Conditions",
   ];
 
+  /* -------- Load Profile Image from localStorage -------- */
+  useEffect(() => {
+    const savedImage = localStorage.getItem("profileImage");
+    if (savedImage) {
+      setProfileImage(savedImage);
+    }
+  }, []);
+
   /* -------- Handle Image Upload -------- */
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -22,6 +33,16 @@ const UserProfile = () => {
 
     const imageURL = URL.createObjectURL(file);
     setProfileImage(imageURL);
+
+    // Save to localStorage (for navbar + refresh persistence)
+    localStorage.setItem("profileImage", imageURL);
+  };
+
+  /* -------- Logout Function -------- */
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("profileImage");
+    navigate("/");
   };
 
   /* -------- Dummy Booking Data -------- */
@@ -62,7 +83,6 @@ const UserProfile = () => {
         {/* Profile Image */}
         <div className="absolute -bottom-16 left-6 md:left-20">
           <div className="relative w-36 h-36">
-            {/* Circle Image */}
             <div className="w-full h-full rounded-full border-4 border-white overflow-hidden shadow-xl bg-white">
               <img
                 src={profileImage}
@@ -109,14 +129,17 @@ const UserProfile = () => {
             </ul>
 
             {/* Logout */}
-            <button className="mt-6 w-full py-2 border border-red-400 text-red-500 rounded-xl font-medium hover:bg-red-50 transition">
+            <button
+              onClick={handleLogout}
+              className="mt-6 w-full py-2 border border-red-400 text-red-500 rounded-xl font-medium hover:bg-red-50 transition"
+            >
               Log Out
             </button>
           </div>
 
           {/* Content */}
           <div className="md:col-span-3 bg-white rounded-2xl shadow-md p-6 md:p-8">
-            {/* -------- PERSONAL INFO -------- */}
+            {/* PERSONAL INFO */}
             {activeTab === "Personal Information" && (
               <>
                 <h2 className="text-xl font-semibold mb-6">
@@ -166,7 +189,7 @@ const UserProfile = () => {
               </>
             )}
 
-            {/* -------- BOOKINGS HISTORY -------- */}
+            {/* BOOKINGS HISTORY */}
             {activeTab === "Bookings History" && (
               <>
                 <h2 className="text-xl font-semibold mb-6">
@@ -212,7 +235,7 @@ const UserProfile = () => {
               </>
             )}
 
-            {/* Other Tabs Placeholder */}
+            {/* Other Tabs */}
             {activeTab !== "Personal Information" &&
               activeTab !== "Bookings History" && (
                 <div className="text-gray-500 text-sm">
