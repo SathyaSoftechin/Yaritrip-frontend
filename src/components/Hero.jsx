@@ -22,8 +22,7 @@ const Hero = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () =>
-      document.removeEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const toggle = (key) => {
@@ -31,13 +30,10 @@ const Hero = () => {
   };
 
   const dropdownBase =
-  "absolute left-0 top-full mt-3 z-[9999] transition-all duration-300 ease-out";
+    "absolute left-0 top-full mt-3 z-[9999] transition-all duration-300 ease-out";
 
-
-  const closed =
-    "opacity-0 scale-95 -translate-y-2 pointer-events-none";
-  const openState =
-    "opacity-100 scale-100 translate-y-0";
+  const closed = "opacity-0 scale-95 -translate-y-2 pointer-events-none";
+  const openState = "opacity-100 scale-100 translate-y-0";
 
   return (
     <section className="relative w-full h-[90vh] overflow-visible">
@@ -67,7 +63,6 @@ const Hero = () => {
           className="mt-20 w-full max-w-6xl bg-white/10 backdrop-blur-xl rounded-2xl shadow-xl p-4 relative"
         >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-
             {/* FROM */}
             <div
               className="relative border rounded-xl p-3 cursor-pointer"
@@ -77,7 +72,9 @@ const Hero = () => {
               <p className="font-semibold text-white">{fromCity}</p>
               <p className="text-xs text-white">{country}</p>
 
-              <div className={`${dropdownBase} ${open === "from" ? openState : closed}`}>
+              <div
+                className={`${dropdownBase} ${open === "from" ? openState : closed}`}
+              >
                 <div className="bg-white rounded-xl shadow-lg p-3">
                   {["Hyderabad", "Bangalore", "Mumbai", "Delhi"].map((city) => (
                     <p
@@ -104,7 +101,9 @@ const Hero = () => {
               <p className="text-xs text-white">Destination / Country</p>
               <p className="font-semibold text-white">{destination}</p>
 
-              <div className={`${dropdownBase} ${open === "destination" ? openState : closed}`}>
+              <div
+                className={`${dropdownBase} ${open === "destination" ? openState : closed}`}
+              >
                 <div className="bg-white rounded-xl shadow-lg p-3">
                   {["Goa", "Kerala", "Dubai", "Singapore"].map((place) => (
                     <p
@@ -139,7 +138,9 @@ const Hero = () => {
               </p>
 
               {/* Floating Calendar Popup */}
-              <div className={`${dropdownBase} ${open === "date" ? openState : closed}`}>
+              <div
+                className={`${dropdownBase} ${open === "date" ? openState : closed}`}
+              >
                 <div className="bg-black/50 backdrop-blur-2xl border border-black/30 rounded-2xl shadow-2xl p-2 w-[320px]">
                   <DayPicker
                     mode="single"
@@ -167,7 +168,9 @@ const Hero = () => {
               <p className="text-xs text-white">Rooms & Guests</p>
               <p className="font-semibold text-white">{rooms}</p>
 
-              <div className={`${dropdownBase} ${open === "rooms" ? openState : closed}`}>
+              <div
+                className={`${dropdownBase} ${open === "rooms" ? openState : closed}`}
+              >
                 <div className="bg-white rounded-xl shadow-lg p-3">
                   {[
                     "1 Room • 2 Guests",
@@ -194,6 +197,26 @@ const Hero = () => {
           <div className="flex justify-end mt-6">
             <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition mr-[500px]">
               Go Search
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 48 48"
+              >
+                <g fill="#616161">
+                  <path d="m29.175 31.99l2.828-2.827l12.019 12.019l-2.828 2.827z" />
+                  <circle cx="20" cy="20" r="16" />
+                </g>
+                <path
+                  fill="#37474f"
+                  d="m32.45 35.34l2.827-2.828l8.696 8.696l-2.828 2.828z"
+                />
+                <circle cx="20" cy="20" r="13" fill="#64b5f6" />
+                <path
+                  fill="#bbdefb"
+                  d="M26.9 14.2c-1.7-2-4.2-3.2-6.9-3.2s-5.2 1.2-6.9 3.2c-.4.4-.3 1.1.1 1.4c.4.4 1.1.3 1.4-.1C16 13.9 17.9 13 20 13s4 .9 5.4 2.5c.2.2.5.4.8.4c.2 0 .5-.1.6-.2c.4-.4.4-1.1.1-1.5"
+                />
+              </svg>
             </button>
           </div>
         </div>
