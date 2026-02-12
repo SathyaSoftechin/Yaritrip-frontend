@@ -1,9 +1,89 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import loginBg from "../assets/login-bg.png";
 
+/* ---------------- SVG ICONS ---------------- */
+
+const GoogleIcon = () => (
+  <svg viewBox="0 0 128 128" className="w-5 h-5">
+    <path
+      fill="#fff"
+      d="M44.59 4.21a63.28 63.28 0 0 0 4.33 120.9a67.6 67.6 0 0 0 32.36.35a57.13 57.13 0 0 0 25.9-13.46a57.44 57.44 0 0 0 16-26.26a74.3 74.3 0 0 0 1.61-33.58H65.27v24.69h34.47a29.72 29.72 0 0 1-12.66 19.52a36.2 36.2 0 0 1-13.93 5.5a41.3 41.3 0 0 1-15.1 0A37.2 37.2 0 0 1 44 95.74a39.3 39.3 0 0 1-14.5-19.42a38.3 38.3 0 0 1 0-24.63a39.25 39.25 0 0 1 9.18-14.91A37.17 37.17 0 0 1 76.13 27a34.3 34.3 0 0 1 13.64 8q5.83-5.8 11.64-11.63A61.2 61.2 0 0 0 87.2 4.59a64 64 0 0 0-42.61-.38"
+    />
+  </svg>
+);
+
+const FacebookIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-[#1877F2]">
+    <path d="M22.675 0H1.325A1.32 1.32 0 0 0 0 1.325v21.351A1.32 1.32 0 0 0 1.325 24h11.495v-9.294H9.692V11.01h3.128V8.309c0-3.1 1.894-4.788 4.659-4.788c1.325 0 2.464.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.312h3.587l-.467 3.696h-3.12V24h6.116A1.32 1.32 0 0 0 24 22.676V1.325A1.32 1.32 0 0 0 22.675 0" />
+  </svg>
+);
+
+const AppleIcon = () => (
+  <svg viewBox="0 0 24 24" className="w-5 h-5 fill-black">
+    <path d="M16.365 1.43c0 1.14-.417 2.273-1.25 3.19c-.865.96-2.287 1.704-3.497 1.608c-.159-1.2.417-2.38 1.177-3.21c.833-.92 2.35-1.63 3.57-1.588zM20.55 17.49c-.48 1.06-.71 1.53-1.33 2.46c-.87 1.31-2.1 2.95-3.64 2.96c-1.37.01-1.72-.9-3.57-.9c-1.86 0-2.25.88-3.58.92c-1.54.06-2.71-1.43-3.58-2.74c-2.38-3.48-2.63-7.56-1.17-9.81c1.03-1.6 2.66-2.54 4.18-2.54c1.56 0 2.54.91 3.83.91c1.26 0 2.03-.92 3.82-.92c1.35 0 2.79.73 3.82 1.99c-3.36 1.84-2.82 6.62.2 7.67z" />
+  </svg>
+);
+
 /* ---------------- LOGIN PAGE ---------------- */
+
 const Login = () => {
-  const navigate = useNavigate(); // ✅ MUST be inside component
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    emailOrMobile: "",
+    password: ""
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    setError(""); // Clear error on input change
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch("http://192.168.1.14:8081/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.emailOrMobile,
+          password: formData.password
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store token in localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        
+        // Navigate to home or dashboard
+        navigate("/");
+      } else {
+        setError(data.message || "Login failed. Please check your credentials.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again later.");
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = "http://192.168.1.14:8081/oauth2/authorization/google";
+  };
 
   return (
     <div
@@ -17,8 +97,7 @@ const Login = () => {
         {/* LEFT TEXT SECTION */}
         <div className="hidden lg:block max-w-lg text-white ml-20">
           <h1 className="text-5xl font-semibold leading-snug font-serif">
-            Explore <br /> The World 🗺️ <br />
-            With <br />
+            Explore <br /> The World 🗺️<br /> With <br />
             <span className="text-blue-400">Yaritrip</span>
           </h1>
           <p className="mt-6 text-sm opacity-80">
@@ -29,52 +108,93 @@ const Login = () => {
         {/* RIGHT LOGIN CARD */}
         <div className="w-full max-w-md mx-auto bg-black/20 rounded-2xl shadow-lg p-6 md:p-8 mr-10">
           {/* Heading */}
-          <h1 className="text-3xl font-bold text-center text-white font-serif">
+          <h1 className="text-3xl font-bold text-center text-white font-serif focus-within:border-blue-500">
             Welcome to <span className="text-blue-500">Yaritrip</span>
           </h1>
           <p className="text-md text-center text-white mt-1">
             Login with Mobile/Email
           </p>
 
+          {/* Error Message */}
+          {error && (
+            <div className="mt-4 p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-sm text-center">
+              {error}
+            </div>
+          )}
+
           {/* Form */}
-          <form className="mt-8 space-y-5">
+          <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
             {/* Email / Mobile */}
             <div>
               <label className="text-md font-bold text-white">
                 Email Id / Mobile
               </label>
-              <div className="mt-1 flex items-center gap-2 border rounded-lg px-3 py-2">
+              <div className="mt-1 flex items-center gap-2 border rounded-lg px-3 py-2 text-black">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="30"
+                  height="30"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    fill="#3e87ff"
+                    fillRule="evenodd"
+                    d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0m-5-2a2 2 0 1 1-4 0a2 2 0 0 1 4 0M8 9a5 5 0 0 0-4.295 2.437A5.49 5.49 0 0 0 8 13.5a5.49 5.49 0 0 0 4.294-2.063A5 5 0 0 0 8 9"
+                    clipRule="evenodd"
+                  />
+                </svg>
                 <input
                   type="text"
+                  name="emailOrMobile"
+                  value={formData.emailOrMobile}
+                  onChange={handleChange}
                   placeholder="Enter Email or Mobile"
-                  className="w-full text-sm outline-none bg-transparent text-white placeholder-white"
+                  className="w-full text-sm outline-none bg-white/0 text-white placeholder-white"
+                  required
                 />
               </div>
             </div>
 
             {/* Password */}
             <div>
-              <label className="text-md font-bold text-white">Password</label>
+              <label className="text-md font-bold text-white">
+                Password
+              </label>
               <div className="mt-1 flex items-center gap-2 border rounded-lg px-3 py-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="30"
+                  height="30"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill="#3e87ff"
+                    d="M12 17a2 2 0 0 0 2-2a2 2 0 0 0-2-2a2 2 0 0 0-2 2a2 2 0 0 0 2 2m6-9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5a5 5 0 0 1 5 5v2zm-6-5a3 3 0 0 0-3 3v2h6V6a3 3 0 0 0-3-3"
+                  />
+                </svg>
                 <input
                   type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="Enter Password"
-                  className="w-full text-sm outline-none bg-transparent text-white placeholder-white"
+                  className="w-full text-sm outline-none bg-white/0 text-white placeholder-white"
+                  required
                 />
               </div>
             </div>
 
-            {/* LOGIN BUTTON */}
+            {/* Login Button */}
             <button
-              type="button"
-              onClick={() => navigate("/user-profile")}
-              className="w-full py-2.5 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition"
+              type="submit"
+              disabled={loading}
+              className="w-full py-2.5 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              LOGIN
+              {loading ? "LOGGING IN..." : "LOGIN"}
             </button>
           </form>
 
-          {/* Signup */}
+          {/* Login Link */}
           <p className="text-sm text-center text-white mt-4">
             Don't have an account?{" "}
             <Link to="/signup" className="text-sky-400 font-semibold">
@@ -82,14 +202,19 @@ const Login = () => {
             </Link>
           </p>
 
-          <div className="flex items-center gap-3 my-5">
-            <div className="flex-1 h-px bg-gray-400"></div>
-            <span className="text-sm text-gray-100">or</span>
-            <div className="flex-1 h-px bg-gray-400"></div>
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-white/30"></div>
+            <span className="text-xs text-white">OR</span>
+            <div className="flex-1 h-px bg-white/30"></div>
           </div>
 
+          {/* Social Login */}
           <div className="flex justify-center gap-4">
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button 
+              onClick={handleGoogleLogin}
+              className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+            >
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -120,7 +245,7 @@ const Login = () => {
                 </svg>
               </span>
             </button>
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition">
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -139,7 +264,7 @@ const Login = () => {
                 </svg>
               </span>
             </button>
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition">
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -151,7 +276,7 @@ const Login = () => {
                 </svg>
               </span>
             </button>
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition">
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -185,10 +310,10 @@ const Login = () => {
                         gradientTransform="matrix(0 -253.715 235.975 0 68 275.717)"
                         gradientUnits="userSpaceOnUse"
                       >
-                        <stop stop-color="#fd5" />
-                        <stop offset=".1" stop-color="#fd5" />
-                        <stop offset=".5" stop-color="#ff543e" />
-                        <stop offset="1" stop-color="#c837ab" />
+                        <stop stopColor="#fd5" />
+                        <stop offset=".1" stopColor="#fd5" />
+                        <stop offset=".5" stopColor="#ff543e" />
+                        <stop offset="1" stopColor="#c837ab" />
                       </radialGradient>
                       <radialGradient
                         id="SVGfkNpldMH"
@@ -198,16 +323,16 @@ const Login = () => {
                         gradientTransform="matrix(22.25952 111.2061 -458.39518 91.75449 -42.881 18.441)"
                         gradientUnits="userSpaceOnUse"
                       >
-                        <stop stop-color="#3771c8" />
-                        <stop offset=".128" stop-color="#3771c8" />
-                        <stop offset="1" stop-color="#60f" stop-opacity="0" />
+                        <stop stopColor="#3771c8" />
+                        <stop offset=".128" stopColor="#3771c8" />
+                        <stop offset="1" stopColor="#60f" stopOpacity="0" />
                       </radialGradient>
                     </defs>
                   </g>
                 </svg>
               </span>
             </button>
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition">
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

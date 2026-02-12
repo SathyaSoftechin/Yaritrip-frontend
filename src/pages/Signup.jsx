@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import loginBg from "../assets/signup-bg.jpeg";
 
 /* -------- Social Icons (Same as Login) -------- */
@@ -27,6 +28,72 @@ const AppleIcon = () => (
 /* ---------------- SIGNUP PAGE ---------------- */
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    mobile: "",
+    password: "",
+    confirmPassword: ""
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    setError(""); // Clear error on input change
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    // Validate passwords match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch("http://192.168.1.14:8081/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          mobile: formData.mobile,
+          password: formData.password,
+          confirmPassword: formData.confirmPassword
+        })
+      });
+
+      const data = await response.text();
+
+      if (response.ok) {
+        // Registration successful, navigate to login
+        navigate("/login");
+      } else {
+        setError(data || "Registration failed. Please try again.");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again later.");
+      console.error("Registration error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignup = () => {
+    window.location.href = "http://192.168.1.14:8081/oauth2/authorization/google";
+  };
+
   return (
     <div
       className="min-h-screen bg-cover bg-center relative"
@@ -53,206 +120,240 @@ const Signup = () => {
             <span className="text-sky-300">Yaritrip</span>
           </h2>
 
-          {/* ---------------- FORM (UNCHANGED) ---------------- */}
-          <form className="space-y-4 items-center">
-            <form className="space-y-4 items-center">
-              {/* Name */}
-              <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="26"
-                  height="26"
-                  viewBox="0 0 26 26"
-                  className="text-blue-500"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M16.563 15.9c-.159-.052-1.164-.505-.536-2.414h-.009c1.637-1.686 2.888-4.399 2.888-7.07c0-4.107-2.731-6.26-5.905-6.26c-3.176 0-5.892 2.152-5.892 6.26c0 2.682 1.244 5.406 2.891 7.088c.642 1.684-.506 2.309-.746 2.397c-3.324 1.202-7.224 3.393-7.224 5.556v.811c0 2.947 5.714 3.617 11.002 3.617c5.296 0 10.938-.67 10.938-3.617v-.811c0-2.228-3.919-4.402-7.407-5.557"
-                  />
-                </svg>
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-sm text-center">
+              {error}
+            </div>
+          )}
 
-                <input
-                  type="text"
-                  placeholder="Full Name"
-                  className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+          {/* ---------------- FORM ---------------- */}
+          <form className="space-y-4 items-center" onSubmit={handleSubmit}>
+            {/* Name */}
+            <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="26"
+                height="26"
+                viewBox="0 0 26 26"
+                className="text-blue-500"
+              >
+                <path
+                  fill="currentColor"
+                  d="M16.563 15.9c-.159-.052-1.164-.505-.536-2.414h-.009c1.637-1.686 2.888-4.399 2.888-7.07c0-4.107-2.731-6.26-5.905-6.26c-3.176 0-5.892 2.152-5.892 6.26c0 2.682 1.244 5.406 2.891 7.088c.642 1.684-.506 2.309-.746 2.397c-3.324 1.202-7.224 3.393-7.224 5.556v.811c0 2.947 5.714 3.617 11.002 3.617c5.296 0 10.938-.67 10.938-3.617v-.811c0-2.228-3.919-4.402-7.407-5.557"
                 />
-              </div>
+              </svg>
 
-              {/* Email */}
-              <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="28"
-                  height="28"
-                  viewBox="0 0 28 28"
-                >
-                  <g fill="none">
-                    <path
-                      fill="#367af2"
-                      d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
-                    />
-                    <path
-                      fill="url(#SVGtG408c5M)"
-                      d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
-                    />
-                    <path
-                      fill="url(#SVGrLvNhcEu)"
-                      d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
-                    />
-                    <path
-                      fill="url(#SVG49Qp7dwT)"
-                      fill-opacity="0.75"
-                      d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
-                    />
-                    <path
-                      fill="url(#SVGOEEeZe0L)"
-                      fill-opacity="0.7"
-                      d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
-                    />
-                    <path
-                      fill="url(#SVGU3EVhdjL)"
-                      d="M2.004 7.75A3.75 3.75 0 0 1 5.754 4H22.25A3.75 3.75 0 0 1 26 7.75v1.2l-11.658 5.972a.75.75 0 0 1-.684 0L2.004 8.953z"
-                    />
-                    <defs>
-                      <linearGradient
-                        id="SVGtG408c5M"
-                        x1="17.5"
-                        x2="23.168"
-                        y1="10.5"
-                        y2="23.701"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop
-                          offset=".199"
-                          stop-color="#0094f0"
-                          stop-opacity="0"
-                        />
-                        <stop offset=".431" stop-color="#0094f0" />
-                      </linearGradient>
-                      <linearGradient
-                        id="SVGrLvNhcEu"
-                        x1="10.574"
-                        x2="4.55"
-                        y1="10.026"
-                        y2="24.154"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop
-                          offset=".191"
-                          stop-color="#0094f0"
-                          stop-opacity="0"
-                        />
-                        <stop offset=".431" stop-color="#0094f0" />
-                      </linearGradient>
-                      <linearGradient
-                        id="SVG49Qp7dwT"
-                        x1="20.329"
-                        x2="21.305"
-                        y1="17.151"
-                        y2="24.345"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="#2764e7" stop-opacity="0" />
-                        <stop offset="1" stop-color="#2764e7" />
-                      </linearGradient>
-                      <linearGradient
-                        id="SVGOEEeZe0L"
-                        x1="17.716"
-                        x2="19.496"
-                        y1="10.281"
-                        y2="24.921"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop
-                          offset=".533"
-                          stop-color="#ff6ce8"
-                          stop-opacity="0"
-                        />
-                        <stop offset="1" stop-color="#ff6ce8" />
-                      </linearGradient>
-                      <linearGradient
-                        id="SVGU3EVhdjL"
-                        x1="9.133"
-                        x2="16.477"
-                        y1=".555"
-                        y2="19.789"
-                        gradientUnits="userSpaceOnUse"
-                      >
-                        <stop stop-color="#6ce0ff" />
-                        <stop offset=".462" stop-color="#29c3ff" />
-                        <stop offset="1" stop-color="#4894fe" />
-                      </linearGradient>
-                    </defs>
-                  </g>
-                </svg>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Full Name"
+                className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+                required
+              />
+            </div>
 
-                <input
-                  type="email"
-                  placeholder="Email Address"
-                  className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
-                />
-              </div>
+            {/* Email */}
+            <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="28"
+                height="28"
+                viewBox="0 0 28 28"
+              >
+                <g fill="none">
+                  <path
+                    fill="#367af2"
+                    d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
+                  />
+                  <path
+                    fill="url(#SVGtG408c5M)"
+                    d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
+                  />
+                  <path
+                    fill="url(#SVGrLvNhcEu)"
+                    d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
+                  />
+                  <path
+                    fill="url(#SVG49Qp7dwT)"
+                    fillOpacity="0.75"
+                    d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
+                  />
+                  <path
+                    fill="url(#SVGOEEeZe0L)"
+                    fillOpacity="0.7"
+                    d="M2.004 8.503V19.25A3.75 3.75 0 0 0 5.754 23H22.25A3.75 3.75 0 0 0 26 19.25V8.5l-11.658 5.972a.75.75 0 0 1-.684 0z"
+                  />
+                  <path
+                    fill="url(#SVGU3EVhdjL)"
+                    d="M2.004 7.75A3.75 3.75 0 0 1 5.754 4H22.25A3.75 3.75 0 0 1 26 7.75v1.2l-11.658 5.972a.75.75 0 0 1-.684 0L2.004 8.953z"
+                  />
+                  <defs>
+                    <linearGradient
+                      id="SVGtG408c5M"
+                      x1="17.5"
+                      x2="23.168"
+                      y1="10.5"
+                      y2="23.701"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop
+                        offset=".199"
+                        stopColor="#0094f0"
+                        stopOpacity="0"
+                      />
+                      <stop offset=".431" stopColor="#0094f0" />
+                    </linearGradient>
+                    <linearGradient
+                      id="SVGrLvNhcEu"
+                      x1="10.574"
+                      x2="4.55"
+                      y1="10.026"
+                      y2="24.154"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop
+                        offset=".191"
+                        stopColor="#0094f0"
+                        stopOpacity="0"
+                      />
+                      <stop offset=".431" stopColor="#0094f0" />
+                    </linearGradient>
+                    <linearGradient
+                      id="SVG49Qp7dwT"
+                      x1="20.329"
+                      x2="21.305"
+                      y1="17.151"
+                      y2="24.345"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stopColor="#2764e7" stopOpacity="0" />
+                      <stop offset="1" stopColor="#2764e7" />
+                    </linearGradient>
+                    <linearGradient
+                      id="SVGOEEeZe0L"
+                      x1="17.716"
+                      x2="19.496"
+                      y1="10.281"
+                      y2="24.921"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop
+                        offset=".533"
+                        stopColor="#ff6ce8"
+                        stopOpacity="0"
+                      />
+                      <stop offset="1" stopColor="#ff6ce8" />
+                    </linearGradient>
+                    <linearGradient
+                      id="SVGU3EVhdjL"
+                      x1="9.133"
+                      x2="16.477"
+                      y1=".555"
+                      y2="19.789"
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stopColor="#6ce0ff" />
+                      <stop offset=".462" stopColor="#29c3ff" />
+                      <stop offset="1" stopColor="#4894fe" />
+                    </linearGradient>
+                  </defs>
+                </g>
+              </svg>
 
-              <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="#005cf4"
-                    d="m16.556 12.906l-.455.453s-1.083 1.076-4.038-1.862s-1.872-4.014-1.872-4.014l.286-.286c.707-.702.774-1.83.157-2.654L9.374 2.86C8.61 1.84 7.135 1.705 6.26 2.575l-1.57 1.56c-.433.432-.723.99-.688 1.61c.09 1.587.808 5 4.812 8.982c4.247 4.222 8.232 4.39 9.861 4.238c.516-.048.964-.31 1.325-.67l1.42-1.412c.96-.953.69-2.588-.538-3.255l-1.91-1.039c-.806-.437-1.787-.309-2.417.317"
-                  />
-                </svg>
-                <input
-                  type="tel"
-                  placeholder="Phone Number"
-                  className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="Email Address"
+                className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+                required
+              />
+            </div>
+
+            {/* Phone */}
+            <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="#005cf4"
+                  d="m16.556 12.906l-.455.453s-1.083 1.076-4.038-1.862s-1.872-4.014-1.872-4.014l.286-.286c.707-.702.774-1.83.157-2.654L9.374 2.86C8.61 1.84 7.135 1.705 6.26 2.575l-1.57 1.56c-.433.432-.723.99-.688 1.61c.09 1.587.808 5 4.812 8.982c4.247 4.222 8.232 4.39 9.861 4.238c.516-.048.964-.31 1.325-.67l1.42-1.412c.96-.953.69-2.588-.538-3.255l-1.91-1.039c-.806-.437-1.787-.309-2.417.317"
                 />
-              </div>
-              {/* Password */}
-              <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="#005cf3"
-                    d="M12 17a2 2 0 0 0 2-2a2 2 0 0 0-2-2a2 2 0 0 0-2 2a2 2 0 0 0 2 2m6-9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5a5 5 0 0 1 5 5v2zm-6-5a3 3 0 0 0-3 3v2h6V6a3 3 0 0 0-3-3"
-                  />
-                </svg>
-                <input
-                  type="password"
-                  placeholder="Create Password"
-                  className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+              </svg>
+              <input
+                type="tel"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleChange}
+                placeholder="Phone Number"
+                className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="#005cf3"
+                  d="M12 17a2 2 0 0 0 2-2a2 2 0 0 0-2-2a2 2 0 0 0-2 2a2 2 0 0 0 2 2m6-9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5a5 5 0 0 1 5 5v2zm-6-5a3 3 0 0 0-3 3v2h6V6a3 3 0 0 0-3-3"
                 />
-              </div>
-              <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="#005cf3"
-                    d="M12 17a2 2 0 0 0 2-2a2 2 0 0 0-2-2a2 2 0 0 0-2 2a2 2 0 0 0 2 2m6-9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5a5 5 0 0 1 5 5v2zm-6-5a3 3 0 0 0-3 3v2h6V6a3 3 0 0 0-3-3"
-                  />
-                </svg>
-                <input
-                  type="password"
-                  placeholder="Confirm Password"
-                  className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+              </svg>
+              <input
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Create Password"
+                className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+                required
+              />
+            </div>
+
+            {/* Confirm Password */}
+            <div className="flex items-center gap-2 border border-gray-400 rounded-lg px-3 py-2 focus-within:border-blue-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  fill="#005cf3"
+                  d="M12 17a2 2 0 0 0 2-2a2 2 0 0 0-2-2a2 2 0 0 0-2 2a2 2 0 0 0 2 2m6-9a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2h1V6a5 5 0 0 1 5-5a5 5 0 0 1 5 5v2zm-6-5a3 3 0 0 0-3 3v2h6V6a3 3 0 0 0-3-3"
                 />
-              </div>
-              {/* Submit */}
-              <button className="w-full py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition">
-                CREATE ACCOUNT
-              </button>
-            </form>
+              </svg>
+              <input
+                type="password"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Confirm Password"
+                className="w-full text-sm outline-none bg-transparent text-white placeholder-gray-300"
+                required
+              />
+            </div>
+
+            {/* Submit */}
+            <button 
+              type="submit"
+              disabled={loading}
+              className="w-full py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "CREATING ACCOUNT..." : "CREATE ACCOUNT"}
+            </button>
           </form>
 
           {/* Login Link */}
@@ -270,8 +371,12 @@ const Signup = () => {
             <div className="flex-1 h-px bg-gray-400"></div>
           </div>
 
+          {/* Social Login */}
           <div className="flex justify-center gap-4">
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button 
+              onClick={handleGoogleSignup}
+              className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition"
+            >
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -302,7 +407,7 @@ const Signup = () => {
                 </svg>
               </span>
             </button>
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition">
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -321,7 +426,7 @@ const Signup = () => {
                 </svg>
               </span>
             </button>
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition">
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -333,7 +438,7 @@ const Signup = () => {
                 </svg>
               </span>
             </button>
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition">
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -367,10 +472,10 @@ const Signup = () => {
                         gradientTransform="matrix(0 -253.715 235.975 0 68 275.717)"
                         gradientUnits="userSpaceOnUse"
                       >
-                        <stop stop-color="#fd5" />
-                        <stop offset=".1" stop-color="#fd5" />
-                        <stop offset=".5" stop-color="#ff543e" />
-                        <stop offset="1" stop-color="#c837ab" />
+                        <stop stopColor="#fd5" />
+                        <stop offset=".1" stopColor="#fd5" />
+                        <stop offset=".5" stopColor="#ff543e" />
+                        <stop offset="1" stopColor="#c837ab" />
                       </radialGradient>
                       <radialGradient
                         id="SVGfkNpldMH"
@@ -380,16 +485,16 @@ const Signup = () => {
                         gradientTransform="matrix(22.25952 111.2061 -458.39518 91.75449 -42.881 18.441)"
                         gradientUnits="userSpaceOnUse"
                       >
-                        <stop stop-color="#3771c8" />
-                        <stop offset=".128" stop-color="#3771c8" />
-                        <stop offset="1" stop-color="#60f" stop-opacity="0" />
+                        <stop stopColor="#3771c8" />
+                        <stop offset=".128" stopColor="#3771c8" />
+                        <stop offset="1" stopColor="#60f" stopOpacity="0" />
                       </radialGradient>
                     </defs>
                   </g>
                 </svg>
               </span>
             </button>
-            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg">
+            <button className="w-14 h-10 flex items-center justify-center bg-blue-50 rounded-lg hover:bg-blue-100 transition">
               <span className="text-lg">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
