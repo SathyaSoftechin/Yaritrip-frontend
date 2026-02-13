@@ -1,7 +1,7 @@
 const SortingBar = ({ sort, setSort }) => {
   return (
     <div className="flex justify-between items-center mb-6 mt-20">
-      <h2 className="text-xl font-semibold">Available Packages</h2>
+      <h2 className="text-xl font-semibold">Available Holiday Packages</h2>
 
       <select
         value={sort}
